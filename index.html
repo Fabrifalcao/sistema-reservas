@@ -1,11 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es-AR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rulos | Reservá tu turno</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;700&family=Shrikhand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-    <a>Hola</a>
+    <div class="pagina">
+        <header class="marca">
+            <span class="logo">Rulos</span>
+            <span class="horario">Martes a sábados, de 9 a 19</span>
+        </header>
+
+        <main>
+            <h1>¿Cuándo te cortamos?</h1>
+
+            <section class="eleccion" aria-label="Qué, con quién y qué día">
+                <fieldset>
+                    <legend><h2><span class="paso">1</span>Qué te hacés</h2></legend>
+                    <div id="servicios"></div>
+                </fieldset>
+
+                <div class="columna">
+                    <fieldset>
+                        <legend><h2><span class="paso">2</span>Con quién</h2></legend>
+                        <div class="pastillas" id="personas"></div>
+                    </fieldset>
+                    <fieldset>
+                        <legend><h2><span class="paso">3</span>Qué día</h2></legend>
+                        <div class="dias" id="dias"></div>
+                    </fieldset>
+                </div>
+            </section>
+
+            <section class="peine" aria-labelledby="titulo-hora">
+                <div class="lomo">
+                    <h2 id="titulo-hora"><span class="paso">4</span>A qué hora empezás</h2>
+                    <span class="lomo-dia" id="lomo-dia"></span>
+                </div>
+                <div class="dientes entrada" id="dientes"></div>
+            </section>
+
+            <div class="bajo-peine">
+                <p class="mensaje" id="mensaje" role="status"></p>
+                <div class="referencias">
+                    <span><i></i>Libre</span>
+                    <span><i class="ref-roto"></i>Ocupado</span>
+                    <span><i class="ref-justo"></i>No alcanza el tiempo</span>
+                </div>
+            </div>
+
+            <section class="turno" aria-labelledby="titulo-datos">
+                <dl class="resumen" id="resumen"></dl>
+
+                <form id="formulario" novalidate>
+                    <h2 id="titulo-datos"><span class="paso">5</span>Tus datos</h2>
+                    <div class="campo">
+                        <label for="nombre">Nombre</label>
+                        <input id="nombre" autocomplete="name" aria-describedby="error-nombre">
+                        <div class="error" id="error-nombre"></div>
+                    </div>
+                    <div class="campo">
+                        <label for="telefono">Teléfono</label>
+                        <input id="telefono" type="tel" autocomplete="tel" aria-describedby="error-telefono">
+                        <div class="error" id="error-telefono"></div>
+                    </div>
+                    <button class="accion" type="submit">Reservar turno</button>
+                </form>
+
+                <div class="listo" id="listo" hidden>
+                    <h2 id="listo-titulo" tabindex="-1">Turno reservado</h2>
+                    <p id="listo-texto"></p>
+                    <button class="accion" type="button" id="otro">Reservar otro turno</button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="pie">
+            <span>Pasaje Las Tijeras 1240</span>
+            <span>Martes a sábados, de 9 a 19</span>
+        </footer>
+    </div>
+
+    <script src="JS/reservas.js"></script>
 </body>
 </html>

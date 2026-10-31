@@ -1,0 +1,360 @@
+:root {
+    --rulero: #F7D6DC;
+    --rulero-oscuro: #EDB9C4;
+    --peine: #075E67;
+    --peine-claro: #9CC7C6;
+    --ciruela: #33142F;
+    --amarillo: #FFC629;
+    --papel: #FFF8F6;
+    --error: #A1123A;
+    --display: "Shrikhand", Georgia, serif;
+    --texto: "Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--rulero);
+    color: var(--ciruela);
+    font-family: var(--texto);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+}
+
+h1, h2, p, fieldset, dl, dd { margin: 0; padding: 0; border: 0; }
+button, input { font: inherit; color: inherit; }
+a { color: inherit; }
+
+:focus-visible { outline: 3px solid var(--ciruela); outline-offset: 2px; }
+
+.pagina {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* Encabezado */
+.marca {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 24px;
+    padding: 24px 0;
+}
+
+.logo { font-family: var(--display); font-size: 1.75rem; line-height: 1; }
+
+h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(2.75rem, 6.6vw, 6.2rem);
+    line-height: 1.02;
+    padding: 16px 0 40px;
+}
+
+h2 {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.paso { color: var(--peine); margin-right: 6px; }
+
+/* Pasos 1 a 3 */
+.eleccion {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 32px 72px;
+    margin-bottom: 48px;
+}
+
+.eleccion legend { padding: 0; }
+.columna { display: grid; gap: 32px; align-content: start; }
+
+.opcion { position: relative; display: block; cursor: pointer; }
+.opcion input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: inherit; }
+
+.servicio {
+    display: grid;
+    grid-template-columns: 1fr auto 6.5rem;
+    gap: 16px;
+    align-items: baseline;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rulero-oscuro);
+}
+
+.servicio .duracion { font-size: .9375rem; }
+.servicio .precio { text-align: right; font-variant-numeric: tabular-nums; }
+
+.opcion:hover .servicio,
+.opcion:hover .pastilla { background: var(--rulero-oscuro); }
+
+.opcion input:checked + .servicio,
+.opcion input:checked + .pastilla { background: var(--ciruela); color: var(--papel); }
+
+.opcion input:focus-visible + span { outline: 3px solid var(--ciruela); outline-offset: 2px; }
+
+.pastillas { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.pastilla {
+    display: block;
+    padding: 8px 18px;
+    border: 2px solid var(--ciruela);
+    border-radius: 999px;
+    font-weight: 500;
+}
+
+.dias {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.dias .pastilla {
+    padding: 8px 2px;
+    border-radius: 16px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.dias .pastilla b { display: block; font-size: 1.375rem; font-variant-numeric: tabular-nums; }
+.dias .pastilla small { font-size: .875rem; }
+
+.opcion.cerrado { cursor: not-allowed; }
+
+.opcion.cerrado .pastilla,
+.opcion.cerrado:hover .pastilla {
+    background: none;
+    border-color: transparent;
+    color: #7A5470;
+}
+
+/* El peine: cada diente es media hora */
+.peine { margin-bottom: 16px; }
+
+.lomo {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 16px 28px;
+    background: var(--peine);
+    color: var(--papel);
+    border-radius: 32px 32px 0 0;
+}
+
+.lomo h2 { margin: 0; font-size: 1.0625rem; }
+.lomo h2 .paso { color: var(--amarillo); }
+.lomo-dia { font-family: var(--display); font-size: 1.625rem; line-height: 1.1; }
+
+.dientes {
+    display: flex;
+    gap: 6px;
+    height: 250px;
+    padding: 10px 12px 0;
+    background: linear-gradient(var(--peine) 10px, transparent 10px);
+}
+
+.diente {
+    --largo: 88%;
+    flex: 1 1 0;
+    min-width: 0;
+    height: var(--largo);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 0 16px;
+    border: 0;
+    border-radius: 0 0 999px 999px;
+    background: var(--peine);
+    color: var(--papel);
+    font-size: .8125rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: height .25s ease, width .25s ease, background-color .15s ease;
+}
+
+.diente:disabled { cursor: not-allowed; }
+.diente:hover:enabled, .diente.previa { --largo: 94%; }
+
+.diente[data-estado="roto"] {
+    --largo: 34%;
+    background: var(--peine-claro);
+    color: var(--ciruela);
+    border-radius: 0;
+    padding-bottom: 20px;
+    clip-path: polygon(0 0, 100% 0, 100% 80%, 76% 100%, 54% 83%, 30% 97%, 0 78%);
+}
+
+.diente[data-estado="justo"] {
+    --largo: 62%;
+    background: none;
+    box-shadow: inset 0 0 0 2px var(--peine);
+    color: var(--peine);
+}
+
+.diente[data-elegido] {
+    --largo: 100%;
+    background: var(--amarillo);
+    box-shadow: none;
+    color: var(--ciruela);
+    font-weight: 700;
+}
+
+.dientes.entrada .diente {
+    transform-origin: top;
+    animation: crecer .5s cubic-bezier(.2, .8, .3, 1) backwards;
+    animation-delay: calc(var(--i) * 28ms);
+}
+
+@keyframes crecer { from { transform: scaleY(0); } }
+
+.bajo-peine {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 32px;
+    margin-bottom: 56px;
+}
+
+.mensaje { font-weight: 500; }
+.mensaje.alerta { color: var(--error); }
+
+.referencias { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: .9375rem; }
+.referencias span { display: inline-flex; align-items: center; gap: 8px; }
+
+.referencias i {
+    width: 10px;
+    height: 20px;
+    border-radius: 0 0 6px 6px;
+    background: var(--peine);
+}
+
+.referencias .ref-roto { height: 11px; background: var(--peine-claro); border-radius: 0; }
+.referencias .ref-justo { background: none; box-shadow: inset 0 0 0 2px var(--peine); }
+
+/* Resumen y datos */
+.turno {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 40px 72px;
+    padding: 36px 40px;
+    background: var(--papel);
+    border-radius: 32px;
+    margin-bottom: 40px;
+}
+
+.resumen div {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--rulero);
+}
+
+.resumen dd { font-weight: 500; }
+.resumen .pendiente { font-weight: 400; color: #7A5470; }
+
+.campo { margin-bottom: 16px; }
+.campo label { display: block; font-weight: 500; margin-bottom: 4px; }
+
+.campo input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--ciruela);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.campo input[aria-invalid="true"] { border-color: var(--error); }
+.campo .error { color: var(--error); font-size: .9375rem; min-height: 1.4em; }
+
+.accion {
+    width: 100%;
+    padding: 14px 24px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--ciruela);
+    color: var(--papel);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.accion:hover { background: var(--peine); }
+
+.listo h2 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 2.25rem;
+    line-height: 1.1;
+    outline: none;
+}
+
+.listo p { margin-bottom: 24px; }
+
+.pie {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 24px;
+    padding-bottom: 32px;
+    font-size: .9375rem;
+}
+
+[hidden] { display: none !important; }
+
+@media (max-width: 1000px) {
+    .pagina { padding: 0 16px; }
+    .eleccion, .turno { grid-template-columns: minmax(0, 1fr); }
+    .turno { padding: 24px 20px; border-radius: 24px; }
+
+    /* En pantallas angostas el peine se acuesta: los dientes salen hacia la derecha */
+    .lomo { display: block; padding: 14px 20px; border-radius: 24px 24px 0 0; }
+    .lomo-dia { display: block; font-size: 1.375rem; }
+
+    .dientes {
+        flex-direction: column;
+        gap: 5px;
+        height: auto;
+        padding: 8px 0;
+        border-left: 18px solid var(--peine);
+        background: none;
+    }
+
+    .diente {
+        flex: none;
+        width: var(--largo);
+        height: 46px;
+        flex-direction: row;
+        justify-content: flex-end;
+        padding: 0 22px 0 0;
+        border-radius: 0 999px 999px 0;
+        font-size: 1rem;
+    }
+
+    .diente[data-estado="roto"] {
+        --largo: 40%;
+        padding: 0 26px 0 0;
+        clip-path: polygon(0 0, 84% 0, 100% 22%, 86% 50%, 98% 74%, 82% 100%, 0 100%);
+    }
+
+    .diente[data-estado="justo"] { --largo: 66%; }
+    .diente[data-elegido] { --largo: 100%; }
+
+    .dientes.entrada .diente { transform-origin: left; animation-name: crecer-lado; }
+    @keyframes crecer-lado { from { transform: scaleX(0); } }
+}
+
+@media (max-width: 480px) {
+    .servicio { grid-template-columns: 1fr auto; gap: 0 16px; }
+    .servicio .duracion { grid-row: 2; font-size: .875rem; }
+    .marca .horario { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .diente { transition: none; }
+    .dientes.entrada .diente { animation: none; }
+}
