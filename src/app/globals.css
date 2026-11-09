@@ -1,0 +1,136 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-sans);
+  --color-dorado: var(--dorado);
+  --color-dorado-oscuro: var(--dorado-oscuro);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * Paleta del proyecto (ver CLAUDE.md).
+ * El dorado significa "esto elegiste": solo selección y acción principal.
+ * Nunca usar dorado como texto sobre blanco (no llega a 4.5:1).
+ */
+:root {
+  --negro: #000000;
+  --carbon: #1c1b19;
+  --dorado: #c9a24d;
+  --dorado-oscuro: #6b5a33;
+  --hueso: #f2f0eb;
+  --gris: #8f8b84;
+
+  /* Tema claro: panel de administración */
+  --background: #ffffff;
+  --foreground: var(--negro);
+  --card: #ffffff;
+  --card-foreground: var(--negro);
+  --popover: #ffffff;
+  --popover-foreground: var(--negro);
+  --primary: var(--negro);
+  --primary-foreground: #ffffff;
+  --secondary: #f3f2ef;
+  --secondary-foreground: var(--negro);
+  --muted: #f3f2ef;
+  --muted-foreground: #66625b;
+  --accent: #f3f2ef;
+  --accent-foreground: var(--negro);
+  --destructive: #c62a2f;
+  --border: #e4e2dd;
+  --input: #d6d3cc;
+  --ring: var(--negro);
+  --chart-1: var(--dorado);
+  --chart-2: #66625b;
+  --chart-3: #a8a49c;
+  --chart-4: var(--dorado-oscuro);
+  --chart-5: var(--negro);
+  --radius: 0.5rem;
+  --sidebar: var(--negro);
+  --sidebar-foreground: var(--hueso);
+  --sidebar-primary: var(--dorado);
+  --sidebar-primary-foreground: var(--negro);
+  --sidebar-accent: var(--carbon);
+  --sidebar-accent-foreground: var(--hueso);
+  --sidebar-border: #2b2925;
+  --sidebar-ring: var(--dorado);
+}
+
+/* Tema oscuro: sitio público (se activa con la clase .dark en el layout público) */
+.dark {
+  --background: var(--negro);
+  --foreground: var(--hueso);
+  --card: var(--carbon);
+  --card-foreground: var(--hueso);
+  --popover: var(--carbon);
+  --popover-foreground: var(--hueso);
+  --primary: var(--dorado);
+  --primary-foreground: var(--negro);
+  --secondary: var(--carbon);
+  --secondary-foreground: var(--hueso);
+  --muted: var(--carbon);
+  --muted-foreground: var(--gris);
+  --accent: #2a2824;
+  --accent-foreground: var(--hueso);
+  --destructive: #e5484d;
+  --border: #2b2925;
+  --input: #3a3733;
+  --ring: var(--dorado);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  /* Evita el destello blanco al "rebotar" el scroll en el celular */
+  body:has(.tema-publico) {
+    background-color: var(--negro);
+  }
+  html {
+    @apply font-sans;
+  }
+}
