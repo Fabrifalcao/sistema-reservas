@@ -7,8 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON \"src/**/*.test.ts\"",
-    "test:watch": "node --test --watch --disable-warning=MODULE_TYPELESS_PACKAGE_JSON \"src/**/*.test.ts\""
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:push": "supabase db push --remote",
+    "db:seed": "supabase db query --remote -f supabase/seed.sql",
+    "db:verificar": "supabase db query --remote -f supabase/pruebas/etapa-1.sql",
+    "db:revisar": "supabase db advisors --remote --type security",
+    "db:tipos": "supabase gen types --remote --schema public > src/lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -28,7 +33,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
+    "supabase": "^3.1.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.1.0"
   }
 }

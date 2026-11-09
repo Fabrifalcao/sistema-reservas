@@ -10,8 +10,8 @@ los servicios, los peluqueros y los bloqueos.
 
 - Next.js 16 (App Router, `cacheComponents` activado) + TypeScript
 - Tailwind CSS 4 + shadcn/ui (estilo `base-nova`, sobre Base UI)
-- Supabase (Postgres + Auth) **en la nube, sin Docker**: Docker se usa para otro proyecto
-  de la facultad en esta máquina y no queremos interferir con él.
+- Supabase (Postgres + Auth) **en la nube, sin Docker**: no usar Docker en esta máquina.
+  La CLI de Supabase (`supabase`, dependencia de desarrollo) se usa solo contra la nube.
 - Deploy en Vercel
 
 ## Comandos
@@ -20,6 +20,11 @@ los servicios, los peluqueros y los bloqueos.
 - `npm test`: tests
 - `npm run lint`
 - `npm run build`
+- `npm run db:push`: aplica las migraciones nuevas en Supabase
+- `npm run db:seed`: carga los datos de ejemplo (no hace nada si ya hay datos)
+- `npm run db:verificar`: corre `supabase/pruebas/etapa-1.sql` contra la base
+- `npm run db:revisar`: revisión de seguridad de Supabase (advisors)
+- `npm run db:tipos`: regenera `src/lib/supabase/database.types.ts` (archivo generado, no editar)
 
 ## Forma de trabajo
 
@@ -27,6 +32,7 @@ los servicios, los peluqueros y los bloqueos.
 - Trabajar por etapas. Al terminar cada una, explicar cómo probarla paso a paso.
 - La lógica de cálculo de horarios disponibles siempre tiene tests.
 - El README está escrito para alguien que no es experto: pasos concretos, sin dar nada por sabido.
+- No hacer commits: los hace el usuario.
 
 ## Etapas
 
@@ -52,7 +58,8 @@ Fuera de alcance por ahora: pagos online, recordatorios automáticos, estadísti
 
 ## Reglas de negocio
 
-Los valores viven en la tabla `ajustes` para poder cambiarlos sin tocar código:
+Los valores viven en la base para poder cambiarlos sin tocar código: la tabla `ajustes` (una sola
+fila) y el horario general en la tabla `horario_general`.
 
 - Intervalo entre horarios ofrecidos: 15 min.
 - Anticipación: mínimo 1 hora, máximo 30 días.
@@ -67,7 +74,11 @@ Los valores viven en la tabla `ajustes` para poder cambiarlos sin tocar código:
   constraint `turnos_sin_superposicion` en Postgres; no quitarla ni reemplazarla por validaciones
   en el código. El error `23P01` se muestra como "Ese horario se acaba de ocupar. Elegí otro."
 - RLS: el público nunca lee `turnos` ni `bloqueos` directamente; usa funciones `security definer`
-  que no exponen datos de clientes.
+  que no exponen datos de clientes (`ocupacion(desde, hasta)`). Admin = usuario que figura en la
+  tabla `administradores`; las políticas lo controlan con `(select privado.es_admin())`.
+- Las reglas de una reserva (horario del peluquero, anticipación, intervalo) se validan en TypeScript,
+  en el servidor y con tests; el servidor escribe con la clave secreta (`service_role`). La base
+  garantiza lo que no se puede controlar desde afuera: no superposición, límite por teléfono, formatos.
 
 ## Fechas, horas y dinero
 
@@ -77,17 +88,31 @@ Los valores viven en la tabla `ajustes` para poder cambiarlos sin tocar código:
 - Precios en guaraníes enteros (`precio_gs integer`). Mostrar con `formatearGuaranies`
   de `src/lib/formato.ts` ("Gs. 50.000").
 - Teléfonos: se guardan normalizados para wa.me (`0981 123 456` → `595981123456`).
+- `dia_semana` va de 1 (lunes) a 7 (domingo), como ISO.
+- La base no convierte zonas horarias: las funciones reciben y devuelven `timestamptz`, y la
+  conversión a `America/Asuncion` se hace en TypeScript.
+
+## Base de datos
+
+- Migraciones en `supabase/migrations/`, creadas con `npx supabase migration new <nombre>`.
+  Una migración ya aplicada no se edita: se crea otra.
+- La CLI 3 apunta a una base local por defecto: siempre usar `--remote` (o los scripts `npm run db:*`).
+  No usar comandos que necesitan Docker (`supabase start`, `db diff`, `db dump`, `db pull`, `test db`)
+  ni `db reset --remote` (borra la base).
+- Supabase da todos los permisos a `anon` y `authenticated` sobre cada tabla nueva. En la misma
+  migración que crea una tabla: `revoke all` a esos roles, `grant` explícitos, `enable row level security`
+  y políticas.
+- Funciones `security definer`: `set search_path = ''`, nombres calificados (`public.turnos`),
+  `revoke all ... from public` y `grant execute` explícito. Las que no debe llamar el navegador van
+  en el esquema `privado`, que no se publica en la API.
+- Cada etapa que toca la base suma chequeos en `supabase/pruebas/etapa-N.sql`, que muestran OK/FALLA
+  y deshacen sus datos al final.
+- Después de aplicar una migración, correr `npm run db:tipos`.
 
 ## Tests
 
-- Se usa el test runner nativo de Node (`node:test` + `node:assert/strict`), con archivos
-  `*.test.ts` al lado del código.
-- **No usar Vitest ni Vite**: Smart App Control de Windows bloquea en esta máquina los binarios
-  nativos de rolldown y rollup.
-- Node ejecuta los `.ts` directamente, así que los módulos con tests y todo lo que importan deben:
-  - importarse entre sí con rutas relativas y extensión `.ts` (no el alias `@/`);
-  - usar `import type` para los tipos;
-  - evitar `enum` y `namespace` (lo controlan `erasableSyntaxOnly` y `verbatimModuleSyntax`).
+- Vitest (`vitest.config.mts`), con archivos `*.test.ts` al lado del código en `src/`.
+- Los tests importan con el alias `@/`, igual que el resto de la app.
 
 ## Diseño
 
