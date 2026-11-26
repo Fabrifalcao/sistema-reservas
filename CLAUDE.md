@@ -119,6 +119,11 @@ sistema-reservas/
 - Al inicio de cada sprint: presentar un **plan breve** y **esperar aprobación** antes de escribir código.
 - Al terminar cada sprint: **resumen** de lo hecho, **pasos para probarlo manualmente** y una **propuesta de mensaje de commit**.
 - **Los commits los hace siempre el usuario.** Claude no ejecuta `git commit`, `push`, `merge` ni `rebase`, ni ofrece hacerlo.
+- **Ramas:**
+  - `main` no se toca: no se hace merge a `main`.
+  - Todo el trabajo va a `develop`.
+  - Para cada sprint, el usuario crea una rama propia desde `develop` y, al cerrar el sprint, la integra en `develop`.
+  - Antes de escribir código de un sprint, Claude verifica en qué rama está. Si sigue en `develop` o en `main`, se lo recuerda al usuario antes de empezar.
 - Si algo es ambiguo o hay un riesgo, **preguntar** en lugar de suponer.
 
 ## Roadmap
@@ -135,7 +140,7 @@ sistema-reservas/
 
 ## Estado actual
 
-**Sprint 0 — terminado, pendiente de que el usuario lo pruebe y haga el commit.**
+**Sprint 0 — cerrado** (commit `2cb0927` en `develop`, subido a `origin/develop`). Próximo: Sprint 1, esperando que el usuario lo pida.
 
 - [x] Estructura de carpetas
 - [x] CLAUDE.md
