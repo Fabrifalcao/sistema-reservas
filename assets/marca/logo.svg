@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#edfffe" stroke-width="2.5" stroke-linejoin="round">
+  <!-- Logo ficticio de ejemplo (gema facetada), en el color de énfasis de la marca. -->
+  <path d="M20 10h24l12 14-24 32L8 24z"/>
+  <path d="M8 24h48M20 10l6 14 6 32 6-32 6-14M26 24l6-14 6 14"/>
+</svg>

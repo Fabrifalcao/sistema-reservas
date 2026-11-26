@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Guía de estilos</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <script type="module" src="guia-estilos.js"></script>
+</head>
+<body>
+  <!-- USO INTERNO: herramientas/ no se publica en el deploy, el cliente nunca ve esta página.
+       No tiene colores ni datos de la peluquería escritos a mano: la marca sale de
+       config.js y de la ZONA DE MARCA de css/styles.css. -->
+  <header class="encabezado-marca">
+    <div class="contenedor guia-intro">
+      <span class="marca"><span data-config="logo"></span><span data-config="nombre">Peluquería</span></span>
+      <p class="etiqueta">Guía de estilos</p>
+      <h1>Componentes del sistema de reservas</h1>
+      <p class="guia-bajada">Todo lo que ves sale de la zona de marca de <code>css/styles.css</code> y de <code>config.js</code>. Si cambias la marca, esta página se actualiza sola, incluida la tabla de contraste.</p>
+      <nav class="guia-indice" aria-label="Secciones de la guía">
+        <a href="#paleta">Paleta</a>
+        <a href="#contraste">Contraste</a>
+        <a href="#tipografia">Tipografía</a>
+        <a href="#botones">Botones</a>
+        <a href="#campos">Campos</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#peluqueros">Peluqueros</a>
+        <a href="#horarios">Horarios</a>
+        <a href="#mensajes">Mensajes</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="contenedor guia">
+    <!-- Paleta -->
+    <section class="guia-seccion" id="paleta" aria-labelledby="t-paleta">
+      <div class="guia-seccion__cabeza">
+        <p class="etiqueta">Variables de color</p>
+        <h2 id="t-paleta">Paleta</h2>
+        <p class="guia-nota">Cada muestra lee su valor directamente de <code>styles.css</code>.</p>
+      </div>
+      <div id="paleta-grupos" class="pila">
+        <noscript><p>La paleta se genera leyendo las variables de <code>styles.css</code> y necesita JavaScript. Abre esta página con un servidor local (<code>npx serve .</code>).</p></noscript>
+      </div>
+    </section>
+
+    <!-- Contraste -->
+    <section class="guia-seccion" id="contraste" aria-labelledby="t-contraste">
+      <div class="guia-seccion__cabeza">
+        <p class="etiqueta">WCAG 2.1 AA</p>
+        <h2 id="t-contraste">Contraste</h2>
+        <p class="guia-nota">Se calcula en vivo con los colores de la marca. Mínimos: 4,5:1 para texto y 3:1 para bordes de campos y anillo de foco. En el degradé del botón se toma el peor punto.</p>
+      </div>
+      <p id="contraste-resumen" class="aviso__detalle" aria-live="polite"></p>
+      <div class="guia-tabla">
+        <table>
+          <thead>
+            <tr><th scope="col">Uso</th><th scope="col">Ratio</th><th scope="col">Mínimo</th><th scope="col">Resultado</th></tr>
+          </thead>
+          <tbody id="contraste-filas"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tipografía -->
+    <section class="guia-seccion" id="tipografia" aria-labelledby="t-tipografia">
+      <div class="guia-seccion__cabeza">
+        <p class="etiqueta">Fuente: <span data-fuente="--fuente-titulos">—</span></p>
+        <h2 id="t-tipografia">Tipografía</h2>
+        <p class="guia-nota">Un solo peso medio para títulos, tracking negativo en tamaños grandes y etiquetas en mayúsculas espaciadas.</p>
+      </div>
+      <div class="guia-tipos">
+        <div class="guia-tipo">
+          <p class="guia-meta">Display (h1) · <code>--texto-display</code> · 36 a 61 px</p>
+          <p class="t-display">Tu próximo corte, sin esperas</p>
+        </div>
+        <div class="guia-tipo">
+          <p class="guia-meta">Título (h2) · <code>--texto-titulo</code> · 28 a 36 px</p>
+          <p class="t-titulo">Servicios y precios</p>
+        </div>
+        <div class="guia-tipo">
+          <p class="guia-meta">Subtítulo (h3) · <code>--texto-subtitulo</code> · 22 px</p>
+          <p class="t-subtitulo">Horarios disponibles para el viernes</p>
+        </div>
+        <div class="guia-tipo">
+          <p class="guia-meta">Etiqueta · <code>.etiqueta</code> · 12 px</p>
+          <p class="etiqueta">Turnos online</p>
+        </div>
+        <div class="guia-tipo">
+          <p class="guia-meta">Cuerpo · <code>--texto-cuerpo</code> · 16 px</p>
+          <p>El turno se confirma al instante y el pago se hace en el local. Se puede cancelar hasta 3 horas antes desde el enlace que llega por WhatsApp.</p>
+        </div>
+        <div class="guia-tipo">
+          <p class="guia-meta">Precio · <code>.precio</code> · cifras tabulares</p>
+          <p class="precio t-titulo">Gs. 120.000</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Botones -->
+    <section class="guia-seccion" id="botones" aria-labelledby="t-botones">
+      <div class="guia-seccion__cabeza">
+        <p class="etiqueta">.boton</p>
+        <h2 id="t-botones">Botones</h2>
+        <p class="guia-nota">El primario lleva el degradé y aparece una sola vez por pantalla. Los estados hover y foco están congelados con <code>.es-hover</code> y <code>.es-foco</code> para poder verlos; los botones de la columna «Normal» responden de verdad al cursor y al teclado.</p>
+      </div>
+      <div class="guia-estados">
+        <div class="guia-estados__fila">
+          <h3 class="guia-subtitulo">Primario</h3>
+          <div class="guia-estados__botones">
+            <div class="guia-estado"><span class="guia-meta">Normal</span><button class="boton boton--primario" type="button">Confirmar reserva</button></div>
+            <div class="guia-estado"><span class="guia-meta">Hover</span><button class="boton boton--primario es-hover" type="button" tabindex="-1">Confirmar reserva</button></div>
+            <div class="guia-estado"><span class="guia-meta">Foco</span><button class="boton boton--primario es-foco" type="button" tabindex="-1">Confirmar reserva</button></div>
+            <div class="guia-estado"><span class="guia-meta">Deshabilitado</span><button class="boton boton--primario" type="button" disabled>Confirmar reserva</button></div>
+          </div>
+        </div>
+        <div class="guia-estados__fila">
+          <h3 class="guia-subtitulo">Secundario</h3>
+          <div class="guia-estados__botones">
+            <div class="guia-estado"><span class="guia-meta">Normal</span><button class="boton boton--secundario" type="button">Cambiar horario</button></div>
+            <div class="guia-estado"><span class="guia-meta">Hover</span><button class="boton boton--secundario es-hover" type="button" tabindex="-1">Cambiar horario</button></div>
+            <div class="guia-estado"><span class="guia-meta">Foco</span><button class="boton boton--secundario es-foco" type="button" tabindex="-1">Cambiar horario</button></div>
+            <div class="guia-estado"><span class="guia-meta">Deshabilitado</span><button class="boton boton--secundario" type="button" disabled>Cambiar horario</button></div>
+          </div>
+        </div>
+        <div class="guia-estados__fila">
+          <h3 class="guia-subtitulo">Fantasma</h3>
+          <div class="guia-estados__botones">
+            <div class="guia-estado"><span class="guia-meta">Normal</span><button class="boton boton--fantasma" type="button">Volver</button></div>
+            <div class="guia-estado"><span class="guia-meta">Hover</span><button class="boton boton--fantasma es-hover" type="button" tabindex="-1">Volver</button></div>
+            <div class="guia-estado"><span class="guia-meta">Foco</span><button class="boton boton--fantasma es-foco" type="button" tabindex="-1">Volver</button></div>
+            <div class="guia-estado"><span class="guia-meta">Deshabilitado</span><button class="boton boton--fantasma" type="button" disabled>Volver</button></div>
+          </div>
+        </div>
+        <div class="guia-estados__fila">
+          <h3 class="guia-subtitulo">Ancho completo (celular)</h3>
+          <button class="boton boton--primario boton--bloque" type="button">Confirmar reserva</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Campos -->
+    <section class="guia-seccion" id="campos" aria-labelledby="t-campos">
+      <div class="guia-seccion__cabeza">
+        <p class="etiqueta">.campo</p>
+        <h2 id="t-campos">Campos</h2>
+        <p class="guia-nota">Todos con <code>label</code> visible, 48 px de alto y texto de 16 px. Los errores se anuncian con texto e ícono, no solo con color.</p>
+      </div>
+      <form class="guia-columnas" id="form-guia" novalidate>
+        <div class="campo">
+          <label class="campo__etiqueta" for="g-nombre">Nombre</label>
+          <input class="campo__control" id="g-nombre" name="nombre" type="text" autocomplete="name" value="Lucía Benítez">
+        </div>
+        <div class="campo">
+          <label class="campo__etiqueta" for="g-wa">WhatsApp</label>
+          <div class="campo__telefono">
+            <span class="campo__prefijo" aria-hidden="true">+595</span>
+            <input class="campo__control" id="g-wa" name="whatsapp" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="981 000 000" aria-describedby="g-wa-ayuda">
+          </div>
+          <p class="campo__ayuda" id="g-wa-ayuda">Por acá llegan la confirmación y el enlace para cancelar.</p>
+        </div>
+        <div class="campo">
+          <label class="campo__etiqueta" for="g-wa-error">WhatsApp (con error)</label>
+          <div class="campo__telefono">
+            <span class="campo__prefijo" aria-hidden="true">+595</span>
+            <input class="campo__control" id="g-wa-error" name="whatsapp-error" type="tel" inputmode="numeric" value="98100" aria-invalid="true" aria-describedby="g-wa-error-msg">
+          </div>
+          <p class="campo__error" id="g-wa-error-msg">El número debe tener 9 dígitos después de +595.</p>
+        </div>
+        <div class="campo">
+          <label class="campo__etiqueta" for="g-servicio">Servicio</label>
+          <div class="campo__selector">
+            <select class="campo__control" id="g-servicio" name="servicio">
+              <option>Corte clásico · Gs. 50.000</option>
+              <option>Perfilado de barba · Gs. 35.000</option>
+              <option>Color completo · Gs. 120.000</option>
+            </select>
+          </div>
+        </div>
+        <div class="campo">
+          <label class="campo__etiqueta" for="g-nota">Nota para el peluquero <span class="campo__opcional">(opcional)</span></label>
+          <textarea class="campo__control" id="g-nota" name="nota" placeholder="Por ejemplo: traigo una foto del corte que quiero"></textarea>
+        </div>
+        <div class="campo">
+          <label class="campo__etiqueta" for="g-foco">Con foco (congelado)</label>
+          <input class="campo__control es-foco" id="g-foco" name="foco" type="text" value="Diego" tabindex="-1">
+        </div>
+        <div class="campo">
+          <label class="campo__etiqueta" for="g-deshabilitado">Deshabilitado</label>
+          <input class="campo__control" id="g-deshabilitado" name="deshabilitado" type="text" value="Se completa al elegir horario" disabled>
+        </div>
+      </form>
+    </section>
+
+    <!-- Servicios -->
+    <section class="guia-seccion" id="servicios" aria-labelledby="t-servicios">
+      <div class="guia-seccion__cabeza">
+        <p class="etiqueta">.tarjeta-servicio</p>
+        <h2 id="t-servicios">Tarjeta de servicio</h2>
+        <p class="guia-nota">Se pueden elegir varios: las duraciones se suman y los hace el mismo peluquero, uno detrás de otro.</p>
+      </div>
+      <fieldset class="grupo-opciones" style="max-width: 28rem">
+        <legend class="grupo-opciones__titulo">Servicios</legend>
+        <label class="tarjeta-servicio">
+          <input type="checkbox" id="g-s-corte" name="servicios" value="corte" data-minutos="30" data-precio="50000" checked>
+          <span class="tarjeta-servicio__marca" aria-hidden="true"></span>
+          <span class="tarjeta-servicio__cuerpo"><span class="tarjeta-servicio__nombre">Corte clásico</span><span class="tarjeta-servicio__duracion">30 min</span></span>
+          <span class="precio">Gs. 50.000</span>
+        </label>
+        <label class="tarjeta-servicio">
+          <input type="checkbox" id="g-s-barba" name="servicios" value="barba" data-minutos="30" data-precio="35000" checked>
+          <span class="tarjeta-servicio__marca" aria-hidden="true"></span>
+          <span class="tarjeta-servicio__cuerpo"><span class="tarjeta-servicio__nombre">Perfilado de barba</span><span class="tarjeta-servicio__duracion">30 min</span></span>
+          <span class="precio">Gs. 35.000</span>
+        </label>
+        <label class="tarjeta-servicio">
+          <input type="checkbox" id="g-s-color" name="servicios" value="color" data-minutos="45" data-precio="120000">
+          <span class="tarjeta-servicio__marca" aria-hidden="true"></span>
+          <span class="tarjeta-servicio__cuerpo"><span class="tarjeta-servicio__nombre">Color completo</span><span class="tarjeta-servicio__duracion">45 min</span></span>
+          <span class="precio">Gs. 120.000</span>
+        </label>
+        <p class="resumen-servicios" id="resumen-servicios" aria-live="polite"><span>60 min seguidos</span><span class="precio">Gs. 85.000</span></p>
+      </fieldset>
+    </section>
+
+    <!-- Peluqueros -->
+    <section class="guia-seccion" id="peluqueros" aria-labelledby="t-peluqueros">
+      <div class="guia-seccion__cabeza">
+        <p class="etiqueta">.opcion-peluquero</p>
+        <h2 id="t-peluqueros">Selector de peluquero</h2>
+        <p class="guia-nota">«Cualquiera disponible» va primero: asigna al peluquero menos cargado del día.</p>
+      </div>
+      <fieldset class="grupo-opciones">
+        <legend class="grupo-opciones__titulo">Peluquero</legend>
+        <div class="opciones-peluquero">
+          <label class="opcion-peluquero"><input type="radio" id="g-p-cualquiera" name="peluquero" value="cualquiera" checked><span>Cualquiera disponible</span></label>
+          <label class="opcion-peluquero"><input type="radio" id="g-p-ana" name="peluquero" value="ana"><span>Ana</span></label>
+          <label class="opcion-peluquero"><input type="radio" id="g-p-diego" name="peluquero" value="diego"><span>Diego</span></label>
+          <label class="opcion-peluquero"><input type="radio" id="g-p-marcos" name="peluquero" value="marcos"><span>Marcos</span></label>
+        </div>
+      </fieldset>
+    </section>
+
+    <!-- Horarios -->
+    <section class="guia-seccion" id="horarios" aria-labelledby="t-horarios">
+      <div class="guia-seccion__cabeza">
+        <p class="etiqueta">.grilla-horarios</p>
+        <h2 id="t-horarios">Grilla de horarios</h2>
+        <p class="guia-nota">Los ocupados van tachados y se anuncian como «ocupado» a los lectores de pantalla. Mañana y tarde van separadas porque los peluqueros pueden tener horario partido.</p>
+      </div>
+      <fieldset class="grupo-opciones" style="max-width: 28rem">
+        <legend class="grupo-opciones__titulo">Horarios · vie 27 nov</legend>
+        <div class="franja-horaria">
+          <span class="franja-horaria__titulo">Mañana</span>
+          <div class="grilla-horarios">
+            <label class="horario"><input type="radio" id="g-h-0900" name="horario" value="09:00"><span>09:00</span></label>
+            <label class="horario"><input type="radio" id="g-h-0930" name="horario" value="09:30" disabled><span>09:30<span class="sr-only"> (ocupado)</span></span></label>
+            <label class="horario"><input type="radio" id="g-h-1000" name="horario" value="10:00" checked><span>10:00</span></label>
+            <label class="horario"><input type="radio" id="g-h-1030" name="horario" value="10:30" disabled><span>10:30<span class="sr-only"> (ocupado)</span></span></label>
+            <label class="horario"><input type="radio" id="g-h-1100" name="horario" value="11:00"><span>11:00</span></label>
+            <label class="horario"><input type="radio" id="g-h-1130" name="horario" value="11:30"><span>11:30</span></label>
+          </div>
+        </div>
+        <div class="franja-horaria">
+          <span class="franja-horaria__titulo">Tarde</span>
+          <div class="grilla-horarios">
+            <label class="horario"><input type="radio" id="g-h-1400" name="horario" value="14:00"><span>14:00</span></label>
+            <label class="horario"><input type="radio" id="g-h-1430" name="horario" value="14:30"><span>14:30</span></label>
+            <label class="horario"><input type="radio" id="g-h-1500" name="horario" value="15:00" disabled><span>15:00<span class="sr-only"> (ocupado)</span></span></label>
+            <label class="horario"><input type="radio" id="g-h-1530" name="horario" value="15:30"><span>15:30</span></label>
+            <label class="horario"><input type="radio" id="g-h-1600" name="horario" value="16:00"><span>16:00</span></label>
+            <label class="horario"><input type="radio" id="g-h-1630" name="horario" value="16:30"><span>16:30</span></label>
+          </div>
+        </div>
+        <p class="guia-leyenda" aria-hidden="true">
+          <span><i></i>Disponible</span>
+          <span><i class="guia-leyenda--ocupado"></i>Ocupado</span>
+          <span><i class="guia-leyenda--elegido"></i>Elegido</span>
+        </p>
+      </fieldset>
+    </section>
+
+    <!-- Mensajes -->
+    <section class="guia-seccion" id="mensajes" aria-labelledby="t-mensajes">
+      <div class="guia-seccion__cabeza">
+        <p class="etiqueta">.aviso</p>
+        <h2 id="t-mensajes">Mensajes</h2>
+      </div>
+      <div class="guia-columnas">
+        <div class="aviso aviso--exito" role="status">
+          <span class="aviso__icono" aria-hidden="true"></span>
+          <div class="aviso__cuerpo">
+            <p class="aviso__titulo">Reserva confirmada</p>
+            <p class="aviso__detalle">Vie 27 nov · 10:00 · con Diego</p>
+            <p>Corte clásico + Perfilado de barba · 60 min · <span class="precio">Gs. 85.000</span>, se paga en el local.</p>
+            <p class="texto-chico">Te llega la confirmación por WhatsApp con un enlace para cancelar hasta 3 horas antes.</p>
+          </div>
+        </div>
+        <div class="aviso aviso--error" role="alert">
+          <span class="aviso__icono" aria-hidden="true"></span>
+          <div class="aviso__cuerpo">
+            <p class="aviso__titulo">No se pudo confirmar</p>
+            <p class="aviso__detalle">Ese horario se ocupó hace un momento</p>
+            <p>Los demás horarios de la grilla siguen libres.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="contenedor guia-pie">
+    <p>Los datos de ejemplo (servicios, precios, peluqueros y horarios) son ficticios.</p>
+  </footer>
+</body>
+</html>

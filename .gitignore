@@ -1,0 +1,25 @@
+# --- Secretos: nunca al repositorio ---
+.env
+.env.*
+!.env.example
+
+# --- Supabase local (la CLI agrega además supabase/.gitignore) ---
+supabase/.branches/
+supabase/.temp/
+
+# --- Node / herramientas de línea de comandos ---
+node_modules/
+npm-debug.log*
+*.log
+
+# --- Hosting estático ---
+.netlify/
+.vercel/
+.wrangler/
+
+# --- Sistema operativo y editores ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
