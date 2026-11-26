@@ -151,4 +151,6 @@ sistema-reservas/
 - [x] `css/styles.css`: zona de marca con la dirección elegida y componentes genéricos (botones, campos, tarjeta de servicio, selector de peluquero, grilla de horarios, avisos)
 - [x] `herramientas/guia-estilos.html` + `herramientas/guia-estilos.js` (uso interno)
 
+**Para el Sprint 1 (a tratar en el plan):** en `supabase/config.jsonc`, `api.auto_expose_new_tables` vale `true` por defecto, igual que en la nube. Eso significa que las tablas nuevas de `public` reciben permisos para `anon` y `authenticated` sin un GRANT explícito, lo que choca con la regla de que `anon` no toca tablas. Las migraciones deben revocar esos permisos explícitamente (y habilitar RLS en todas las tablas) para que funcione igual en local y en la nube.
+
 **Pendiente para el Sprint 3:** definir si los textos al cliente van con *tú*, *vos* o *usted*. Hasta ahora se usaron frases neutras.
