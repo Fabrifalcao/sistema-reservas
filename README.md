@@ -19,16 +19,25 @@ Es un producto white-label: cada peluquería tiene su propia copia (proyecto de 
 
 ```bash
 # 1. Levantar Supabase local (Docker Desktop debe estar abierto)
-npx supabase start
+npx supabase@3.4.0 start
 
 # 2. Ver URL, claves y el link a Studio local
-npx supabase status
+npx supabase@3.4.0 status
 
 # 3. Servir el frontend (los ES modules no funcionan abriendo el HTML con doble clic)
 npx serve .
 ```
 
-Para detener Supabase: `npx supabase stop`.
+Para detener Supabase: `npx supabase@3.4.0 stop`.
+
+La versión de la CLI va fija en todos los comandos (`@3.4.0`). Sin versión, `npx` podría bajar la última, que podría leer distinto `supabase/config.jsonc`.
+
+### Base de datos
+
+- `npx supabase@3.4.0 db reset`: recrea la base local desde cero, aplica las migraciones de `supabase/migrations/` y carga los datos de prueba de `supabase/seed.sql`. **Borra los datos locales.**
+- `npx supabase@3.4.0 test db`: corre los tests de `supabase/tests/database/`, que verifican la seguridad (RLS y permisos) y las restricciones del esquema.
+- Studio (http://127.0.0.1:44323) muestra las tablas y los datos.
+- Administrador local creado por el seed, **solo para desarrollo**: `admin@onix.test` / `onix-local`.
 
 Con el servidor estático andando, la guía de estilos está en http://localhost:3000/herramientas/guia-estilos.html. Muestra los componentes con la marca actual y calcula el contraste WCAG de sus colores. La carpeta `herramientas/` es de uso interno: no se publica en el deploy.
 

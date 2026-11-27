@@ -8,15 +8,18 @@ Sistema de reservas de turnos para peluquerías que se vende como producto **whi
 
 ## Contexto del producto
 
-- Mercado: peluquerías de **Paraguay**. Idioma: **castellano**.
+- Mercado: peluquerías de **Paraguay**. Idioma: **castellano**. Los textos al cliente van con **tú** ("elige otro horario").
 - Moneda: **guaraníes como enteros** (sin decimales), formato `Gs. 50.000` (punto como separador de miles).
-- Zona horaria: **America/Asuncion**. Usar siempre el nombre IANA, **nunca un offset fijo** (Paraguay cambió sus reglas de horario de verano; un offset fijo rompe fechas).
+- Zona horaria: **America/Asuncion**. Usar siempre el nombre IANA, **nunca un offset fijo** (Paraguay cambió sus reglas de horario de verano; un offset fijo rompe fechas). Desde octubre de 2024 es UTC-3 todo el año: la base necesita datos de zona horaria actualizados, y un test lo verifica (Sprint 2).
 - El cliente final reserva **sin crear cuenta**: nombre + número de WhatsApp (formato `+595`).
 - El pago es en el local. **No hay pagos online.**
 - Hay varios peluqueros, cada uno con su horario semanal (puede tener **horario partido**, p. ej. 8–12 y 14–19). En un mismo horario puede haber tantos turnos simultáneos como peluqueros disponibles.
 - Servicios con duración configurable (normalmente 30–45 min) y precio editable por el dueño.
 - Un cliente puede reservar **varios servicios en un turno**: se suman las duraciones y los realiza **un mismo peluquero de forma consecutiva**, solo si hay uno libre durante todo el bloque.
-- El cliente elige peluquero o **"Cualquiera disponible"**: se asigna automáticamente al peluquero **menos cargado del día**.
+- El cliente elige peluquero o **"Cualquiera disponible"**. Con "Cualquiera disponible", el sistema asigna al peluquero **menos cargado del día**, entre los que estén libres durante todo el bloque:
+  - "Menos cargado" = menos minutos reservados ese día (sin contar canceladas).
+  - Desempate: menos reservas; después, menor `orden`. **Todos los peluqueros hacen todos los servicios.**
+- Un peluquero con bloqueo (día completo o franja) no ofrece horarios en ese período: si el cliente lo elige, ese día aparece desactivado en su calendario, y "Cualquiera disponible" no lo tiene en cuenta.
 - Cancelación: el cliente puede cancelar **hasta 3 horas antes** del turno mediante un **enlace único con token**.
 - Notificaciones por WhatsApp: confirmación al reservar y recordatorio el día del turno (Sprint 5).
 - Panel del dueño con login: agenda, servicios, peluqueros y horarios, bloqueos/feriados/vacaciones, clientes, estadísticas.
@@ -57,6 +60,35 @@ Todo lo específico de una peluquería vive **solo** en dos archivos:
 - **Ningún otro archivo** puede contener datos de una peluquería concreta. Los textos de las páginas se leen de `config.js`.
 - Lo que es del producto y no de la marca (zona horaria, moneda, prefijo +595, regla de 3 horas) va en el código, no en `config.js`.
 
+## Modelo de datos
+
+Migraciones en `supabase/migrations/`, en este orden: `seguridad_base` → `esquema` → `rls`.
+
+| Tabla | Contenido |
+|---|---|
+| `peluqueros` | nombre, activo, orden. Con reservas no se borran: se desactivan |
+| `servicios` | nombre, descripción, duración (múltiplo de 5), precio en Gs., activo, orden |
+| `horarios` | franjas semanales por peluquero, en `time` local. Varias el mismo día = horario partido; sin superposición |
+| `bloqueos` | bloqueo / feriado / vacaciones en `timestamptz`. Sin peluquero = todo el local |
+| `clientes` | nombre (el último usado) y teléfono `+5959XXXXXXXX` único |
+| `reservas` | cliente, peluquero, `asignacion_automatica` (true = "Cualquiera disponible"), inicio/fin, estado, token de cancelación (64 hex), datos de cancelación. Exclusion constraint contra solapamientos |
+| `reserva_servicios` | servicios de la reserva en orden, con duración y precio **copiados al reservar** |
+| `configuracion` | una sola fila: grilla (15 min), anticipación mínima (60 min), días a futuro (30), reservas activas por teléfono (2) |
+| `administradores` | usuarios de Auth que pueden usar el panel |
+
+**Detalles del esquema:**
+- Enums:
+  - `estado_reserva`: `confirmada`, `cancelada`, `completada`, `ausente`;
+  - `actor_cancelacion`: `cliente`, `local`;
+  - `tipo_bloqueo`: `bloqueo`, `feriado`, `vacaciones`.
+- Los días de la semana siguen ISO: 1 = lunes … 7 = domingo.
+- La regla de cancelar hasta 3 horas antes es del producto: va en el código, no en `configuracion`.
+- El esquema `privado` guarda funciones auxiliares (`es_admin()`, triggers). La API REST no lo publica.
+
+**Regla para toda migración nueva.** Los permisos por defecto de `public` están cerrados: nada queda expuesto sin querer.
+- Cada tabla nueva necesita RLS y GRANT explícito a `authenticated`.
+- Cada función RPC pública necesita `grant execute … to anon` explícito, **y además** sumarse a la lista blanca del test `supabase/tests/database/01_seguridad.test.sql`. El test falla si `anon` puede ejecutar algo que no está en esa lista.
+
 ## Dirección de diseño
 
 Base: **`DESIGN.md`** (raíz del repo), una referencia de estilo oscura: lienzo verde azulado profundo, profundidad por capas de superficie **sin sombras**, color muy medido, títulos en un único peso medio con tracking negativo y etiquetas en mayúsculas espaciadas. Se descartó la propuesta inicial de dorado y negro.
@@ -86,12 +118,17 @@ Decisiones tomadas en el Sprint 0, que **prevalecen sobre el `.md`** donde difie
 ## Entorno de desarrollo
 
 - Una sola PC con Windows 10 Pro.
-- **Docker Desktop** se usa para la base local de Supabase (`npx supabase start`).
+- **Docker Desktop** se usa para la base local de Supabase (`npx supabase@3.4.0 start`).
 - **Puertos locales de Supabase: 443xx** (API 44321, DB 44322, Studio 44323, Mailpit 44324), no los 543xx por defecto: en Windows, Hyper-V/WSL2 reserva bloques aleatorios de puertos dentro de 49152-65535 y bloqueaba los 543xx. No volver a los valores por defecto. El motivo está explicado en `supabase/config.jsonc`.
 - **Analytics desactivado** en local: en Windows exige exponer el daemon de Docker sin TLS y, si no, el contenedor `vector` queda en bucle.
 - En el mismo Docker corre otro proyecto del usuario (`global-exchange`, trabajo de la facultad). **Nunca** usar `docker system/container/volume prune` ni tocar recursos `global-exchange*`.
-- Supabase CLI vía `npx supabase …` (no está instalada global). El proyecto se inicializó con la **v3.4.0**, que usa `supabase/config.jsonc` en vez de `config.toml`.
+- Supabase CLI vía `npx supabase@3.4.0 …` (no está instalada global). **Siempre con la versión fija**, también en la documentación: sin versión, `npx` puede bajar otra que lea distinto `config.jsonc`. La v3.4.0 usa `supabase/config.jsonc` en vez de `config.toml`.
 - El frontend se sirve con cualquier servidor estático (los ES modules no funcionan con `file://`), por ejemplo `npx serve .`.
+- Comandos de base (los puede correr Claude):
+  - `npx supabase@3.4.0 db reset` recrea la base local: aplica las migraciones y el seed, y **borra los datos locales**.
+  - `npx supabase@3.4.0 test db` corre los tests pgTAP de `supabase/tests/database/`.
+  - Los cambios de `config.jsonc` en la sección `auth` solo se aplican con `stop` + `start`.
+- Admin local creado por el seed: `admin@onix.test` / `onix-local`. Solo para desarrollo.
 
 ## Estructura de carpetas
 
@@ -100,6 +137,7 @@ sistema-reservas/
 ├── index.html          # Reserva pública (Sprint 3)
 ├── cancelar.html       # Ver/cancelar reserva por token (Sprint 3)
 ├── DESIGN.md           # Referencia de estilo base (ver "Dirección de diseño")
+├── SPRINTS.md          # Guía detallada de cada sprint (uso interno, no se publica)
 ├── config.js           # MARCA: datos de la peluquería + Supabase URL/Publishable key
 ├── admin/              # Login y panel del dueño (Sprint 4)
 ├── css/styles.css      # Único CSS. ZONA DE MARCA arriba + estilos genéricos
@@ -108,7 +146,7 @@ sistema-reservas/
 │   └── admin/          # Lógica del panel
 ├── assets/marca/       # Logo y favicon de la peluquería (referenciados desde config.js)
 ├── herramientas/       # USO INTERNO, no se publica: guía de estilos (guia-estilos.html + .js)
-├── supabase/           # config.jsonc, migrations/, functions/, seed.sql, tests/
+├── supabase/           # config.jsonc, migrations/, seed.sql, tests/database/ (pgTAP), functions/ (Sprint 5)
 ├── CLAUDE.md
 └── README.md
 ```
@@ -116,7 +154,10 @@ sistema-reservas/
 ## Forma de trabajo
 
 - Se trabaja por **sprints**. No avanzar a otro sprint hasta que el usuario lo pida.
-- Al inicio de cada sprint: presentar un **plan breve** y **esperar aprobación** antes de escribir código.
+- Al inicio de cada sprint:
+  1. Leer su guía completa en **`SPRINTS.md`**, incluidas sus "Notas acordadas".
+  2. Presentar un **plan breve**.
+  3. **Esperar aprobación** antes de escribir código.
 - Al terminar cada sprint: **resumen** de lo hecho, **pasos para probarlo manualmente** y una **propuesta de mensaje de commit**.
 - **Los commits los hace siempre el usuario.** Claude no ejecuta `git commit`, `push`, `merge` ni `rebase`, ni ofrece hacerlo.
 - **Ramas:**
@@ -128,6 +169,8 @@ sistema-reservas/
 
 ## Roadmap
 
+La guía detallada de cada sprint está en `SPRINTS.md`.
+
 - **Sprint 0** — Setup del proyecto y dirección de diseño
 - **Sprint 1** — Esquema de base de datos, RLS y datos de prueba
 - **Sprint 2** — Lógica de disponibilidad, reservas y cancelación (funciones SQL + tests)
@@ -136,21 +179,28 @@ sistema-reservas/
 - **Sprint 4B** — Estadísticas del negocio (se realiza junto al Sprint 4)
 - **Sprint 5** — WhatsApp: confirmación, recordatorio y cancelación
 - **Sprint 6** — Pulido, auditoría de seguridad, deploy y kit de instalación para nuevos clientes
-  - Ojo en el deploy: publicar **solo los archivos públicos**. No deben quedar accesibles `CLAUDE.md`, `DESIGN.md`, `README.md`, `supabase/` ni `herramientas/`.
+  - Ojo en el deploy: publicar **solo los archivos públicos**. No deben quedar accesibles `CLAUDE.md`, `DESIGN.md`, `README.md`, `SPRINTS.md`, `INSTALAR-NUEVO-CLIENTE.md`, `supabase/` ni `herramientas/`.
+  - En cada proyecto de la nube:
+    - desactivar el registro de cuentas en el panel de Supabase;
+    - crear la cuenta del dueño y su fila en `administradores`;
+    - **nunca** correr `seed.sql`, que es solo para desarrollo.
 
 ## Estado actual
 
-**Sprint 0 — cerrado** (commit `2cb0927` en `develop`, subido a `origin/develop`). Próximo: Sprint 1, esperando que el usuario lo pida.
+**Sprint 0 — cerrado** (commit `2cb0927` en `develop`). Incluyó la estructura del proyecto, CLAUDE.md, Supabase local, `config.js`, la dirección de diseño, `css/styles.css` con componentes y la guía de estilos interna.
 
-- [x] Estructura de carpetas
-- [x] CLAUDE.md
-- [x] .gitignore y README
-- [x] `supabase init` (sin proyecto remoto vinculado) y Supabase local corriendo en Docker
-- [x] `config.js` con una peluquería ficticia ("Ónix Peluquería")
-- [x] Dirección de diseño: DESIGN.md + DM Sans + botón con degradé aurora (ver "Dirección de diseño")
-- [x] `css/styles.css`: zona de marca con la dirección elegida y componentes genéricos (botones, campos, tarjeta de servicio, selector de peluquero, grilla de horarios, avisos)
-- [x] `herramientas/guia-estilos.html` + `herramientas/guia-estilos.js` (uso interno)
+**Sprint 1 — terminado, pendiente de que el usuario lo pruebe y haga el commit** (rama `feature/sprint1-esquema-bd`).
 
-**Para el Sprint 1 (a tratar en el plan):** en `supabase/config.jsonc`, `api.auto_expose_new_tables` vale `true` por defecto, igual que en la nube. Eso significa que las tablas nuevas de `public` reciben permisos para `anon` y `authenticated` sin un GRANT explícito, lo que choca con la regla de que `anon` no toca tablas. Las migraciones deben revocar esos permisos explícitamente (y habilitar RLS en todas las tablas) para que funcione igual en local y en la nube.
+- [x] Migraciones `seguridad_base`, `esquema` y `rls` (ver "Modelo de datos")
+- [x] Permisos por defecto de `public` cerrados, lo que resuelve `auto_expose_new_tables`. RLS solo para administradores
+- [x] Registro de cuentas desactivado en local (`enable_signup: false`)
+- [x] `supabase/seed.sql`: Ónix con 4 peluqueros (uno con horario partido), 7 servicios, 8 clientes, feriado, vacaciones, un bloqueo y unas 30 reservas con fechas relativas a hoy. Incluye el admin local
+- [x] Tests pgTAP: los 41 pasan (17 de seguridad, 24 de restricciones)
+- [x] Comprobado por la API real:
+  - anónimo rechazado en las tablas;
+  - registro de cuentas bloqueado;
+  - el admin inicia sesión y ve los datos.
+- [x] `reservas.asignacion_automatica`: distingue el peluquero que eligió el cliente del asignado con "Cualquiera disponible"
+- [x] Guías de los Sprints 2 a 6 guardadas en `SPRINTS.md`, con los agregados del usuario y adaptadas a las decisiones ya tomadas
 
-**Pendiente para el Sprint 3:** definir si los textos al cliente van con *tú*, *vos* o *usted*. Hasta ahora se usaron frases neutras.
+Lo acordado para cada sprint está en sus "Notas acordadas" de `SPRINTS.md`. En el Sprint 2, por ejemplo, la definición de "menos cargado del día" y el test de zona horaria.

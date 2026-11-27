@@ -209,7 +209,10 @@
     // Requires enable_refresh_token_rotation = true.
     "refresh_token_reuse_interval": 10,
     // Allow/disallow new user signups to your project. Existing users can still sign in.
-    "enable_signup": true,
+    // Desactivado: solo el dueño entra al panel y su cuenta se crea a mano. El
+    // público reserva sin cuenta. (En la nube hay que desactivarlo también en el
+    // panel de Supabase: ver kit de instalación, Sprint 6.)
+    "enable_signup": false,
     // Allow/disallow anonymous sign-ins to your project.
     "enable_anonymous_sign_ins": false,
     // Allow/disallow testing manual linking of accounts
